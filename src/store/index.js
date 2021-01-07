@@ -9,6 +9,10 @@ export default new Vuex.Store({
         token: cookies.get("token")
     },
     mutations: {
+        logout(state) {
+            cookies.remove("token");
+            state.token = null;
+        },
         setToken(state, token) {
             cookies.set("token", token);
             state.token = token;
