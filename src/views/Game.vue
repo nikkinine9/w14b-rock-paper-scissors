@@ -1,41 +1,40 @@
 <template>
     <div id="game">
-        <div class="container">
-        <br>
-        <header class="header">
-        <h1>Rock Paper Scissors</h1>
-        <button id="restart" class="restart-btn">Restart Game</button>
-        <div id="score" class="score">
-            <p>Player: 0</p>
-            <p>Computer: 0</p>
+        <scoreboard-component />
+      <div id="choices">
+        <button @click="select(0)">Rock</button>
+        <button @click="select(1)">Paper</button>
+        <button @click="select(2)">Scissors</button>
+      </div>
+      <div id="players">
+        <player-component />
+        <div id="game-rules">
+          <h2><u>Rules of the Game:</u></h2>
+          <p>Click a button to play!</p>
+          <ul>
+            <li>Scissors cuts Paper</li>
+            <li>Paper covers Rock</li>
+            <li>Rock crushes Scissors</li>
+          </ul>
         </div>
-        </header>
-        <h2>Make Your Selection</h2>
-        <div class="choices">
-        <i id="rock" class="choice fas fa-hand-rock fa-10x"></i>
-        <i id="paper" class="choice fas fa-hand-paper fa-10x"></i>
-        <i id="scissors" class="choice fas fa-hand-scissors fa-10x"></i>
-        </div>
-        <br>
-        <div class="modal">
-        <div id="result" class="modal-content">
-            <h1 class="text-win">You Win</h1>
-            <i class="fas fa-hand-rock fa-10x"></i>
-            <p>Computer Chose Rock</p>
-        </div>
-        </div>
-        <br>
-        </div>
+        <computer-component />
+      </div>
         <logout-button></logout-button>
     </div>
 </template>
 
 <script>
 import LogoutButton from "@/components/LogoutButton.vue"
+import ScoreboardComponent from "@/components/ScoreboardComponent.vue";
+import PlayerComponent from "@/components/PlayerComponent.vue";
+import ComputerComponent from "@/components/ComputerComponent.vue";
 
 export default {
     name: "Game",
     components: {
+      PlayerComponent,
+      ComputerComponent,
+      ScoreboardComponent,
       LogoutButton
     },
     computed: {
@@ -47,253 +46,134 @@ export default {
       if(!this.token) {
         this.$router.push({name: "login"});
       }
-    }
+    },
+    data: function() {
+    return {
+      gameElement: [
+        {
+          name: "Rock",
+          image: "@/src/assets/rock.png"
+        },
+        {
+          name: "Paper",
+          image: "@/src/assets/paper.png"
+        },
+        {
+          name: "Scissors",
+          image: "@/src/assets/scissors.png"
+        },
+      ],
+      gameRules: {
+        Rock: {
+          Rock: 0,
+          Paper: -1,
+          Scissors: 1,
+        },
+        Paper: {
+          Rock: 1,
+          Paper: 0,
+          Scissors: -1,
+        },
+        Scissors: {
+          Rock: -1,
+          Paper: 1,
+          Scissors: 0,
+        },
+      },
+    };
+  },
+  methods: {
+    select: function(index) {
+      let userSelection = this.gameElement[index];
+      let computerSelection = this.gameElement[Math.floor(Math.random() * 5)];
+      // console.log(this.gameRules[userSelection.name]);
+      let results = this.gameRules[userSelection.name][computerSelection.name];
+      console.log(results);
+      this.$store.commit("updateUser", userSelection);
+      this.$store.commit("updateComputer", computerSelection);
+      this.$store.commit("updateResults", results);
+    },
+  }
 };
 
-// const choices = document.querySelectorAll(".choices");
-// const score = document.getElementById("score");
-// const result = document.getElementById("result");
-// const restart = document.getElementById("restart");
-// const modal = document.querySelector(".modal");
-// const scoreboard = {
-//   player: 0,
-//   computer:0
-// }
 
-// function play(e) {
-// //   console.log(e.target.id);
-//   restart.style.display = "inline-block";
-//   const playerChoice = e.target.id;
-//   const computerChoice = getComputerChoice();
-//   const winner = getWinner(playerChoice, computerChoice);
-//   showWinner(winner, computerChoice);
-// }
-
-// function getComputerChoice() {
-//   const rand = Math.random();
-//   if(rand < 0.34) {
-//     return "rock";
-//   }else if(rand <= 0.67) {
-//     return "paper";
-//   }else {
-//     return "scissors";
-//   }
-// }
-
-// function getWinner(p, c) {
-//   if(p === c) {
-//     return "draw";
-//   }else if (p === "rock") {
-//     if(c === "paper") {
-//       return "computer";
-//     }else {
-//       return "player";
-//     }
-//   }else if(p === "paper") {
-//     if(c === "scissors") {
-//       return "computer";
-//     }else {
-//       return "player";
-//     }
-//   }else if(p === "scissors") {
-//     if(c === "rock") {
-//       return "computer";
-//     }else {
-//       return "player";
-//     }
-//   }
-// }
-
-// function showWinner(winner, computerChoice) {
-//   if(winner === "player") {
-//     scoreboard.player++;
-//     result.innerHTML = `
-//       <h1 class="text-win">You Win!!!</h1>
-//       <i class="fas fa-hand-${computerChoice} fa-10x"></i>
-//       <p>Computer Chose <strong>${computerChoice}</strong></p>
-//       `;
-//   }else if(winner === "computer") {
-//     scoreboard.computer++;
-//     result.innerHTML = `
-//       <h1 class="text-lose">You Lose!!</h1>
-//       <i class="fas fa-hand-${computerChoice} fa-10x"></i>
-//       <p>Computer Chose <strong>${computerChoice}</strong></p>
-//       `;
-//   } else {
-//     result.innerHTML = `
-//       <h1>It's A Draw!</h1>
-//       <i class="fas fa-hand-${computerChoice} fa-10x"></i>
-//       <p>Computer Chose <strong>${computerChoice}</strong></p>
-//     `;
-//   }
-//   score.innerHTML = `
-//     <p>Player: ${scoreboard.player}</p>
-//     <p>Computer: ${scoreboard.computer}</p>
-//     `;
-  
-//   modal.style.display = "block";
-// }
-
-// function restartGame() {
-//   scoreboard.player = 0;
-//   scoreboard.computer = 0;
-//   score.innerHTML = `
-//   <p>Player: 0</p>
-//   <p>Computer: 0</p>
-//   `;
-// }
-
-// function clearModal(e) {
-//   if(e.target == modal) {
-//     modal.style.display = "none";
-//   }
-// }
-
-// choices.forEach(choice => choice.addEventListener("click", play));
-// window.addEventListener('click', clearModal);
-// restart.addEventListener('click', restartGame);
   
 </script>
 
 <style scoped>
-:root {
-  --primary-color: #003699;
-  --dark-color: #333333;
-  --light-color: #dc3545;
-  --win-color: #28a745;
-  --modal-duration: 1s;
+#title {
+  margin-bottom: 5vw;
+  font-family: "Press Start 2P", cursive;
+  line-height: 3vh;
 }
-
-* {
-  box-sizing:border-box;
-  padding: 0;
-  margin: 0;
-}
-
-.container {
-  max-width: 1100px;
-  margin: auto;
-  overflow: hidden;
-  padding: 0 2rem;
-  text-align: center;
-
-}
-
-.restart-btn {
-  display: none;
-  background: var(--light-color);
-  color: ivory;
-  padding: 0.4rem 1.3rem;
-  font-size: 1rem;
+#logout-btn {
+  box-shadow: 2px 0px 5px rgb(56, 56, 56);
+  border: 1px solid rgb(114, 27, 27);
+  color: rgb(114, 27, 27);
+  padding: 5px;
+  font-weight: bold;
+  border-radius: 7%;
+  width: 10%;
+  margin-left: 43.5%;
   cursor: pointer;
-  outline: none;
-  border: none;
-  margin-bottom: 1rem;
+  transform: perspective(1px) translateZ(0);
+  transition-duration: 0.3s;
+  transition-property: transform;
 }
-
-.restart-btn:hover {
-  background: var(--primary-color);
+#logout-btn:hover {
+  transform: scale(0.9);
 }
-
-.header {
-  text-align: center;
-  margin: 1rem 0;
-}
-
-.header h1 {
-  margin-bottom: 1rem;
-}
-
-.score {
+#players {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  font-size: 1.2rem;
-}
-
-.score p:first-child {
-  background: var(--primary-color);
-}
-
-.score p:last-child {
-  background: var(--dark-color);
-}
-
-.choices {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-gap: 2rem;
-  margin-top: 3rem;
+  grid-template-columns: 1fr 1fr 1fr;
   text-align: center;
+  justify-items: center;
+  object-fit: cover;
+  margin-top: 1vw;
+  margin-left: 2vw;
+  margin-right: 2vw;
+  margin-bottom: 7vw;
 }
-
-.choice {
+#choices {
+  text-align: center;
+  align-items: center;
+  justify-items: center;
+  width: 25%;
+  margin: 1vw;
+}
+button {
+  margin: 5px;
+  background-color: rgb(114, 27, 27);
+  color: white;
+  padding: 7px;
+  font-size: 14px;
+  border-radius: 7%;
+  width: 100px;
   cursor: pointer;
+  box-shadow: 2px 0px 5px rgb(56, 56, 56);
+  font-family: "Bangers", cursive;
+  letter-spacing: 3px;
+  transform: perspective(1px) translateZ(0);
+  transition-duration: 0.3s;
+  transition-property: transform;
 }
-
-.choice:hover {
-  color: var(--primary-color)
+button:hover {
+  transform: scale(0.9);
 }
-
-.text-win {
-  color: var(--win-color);
-}
-
-.text-lose {
-  color: var(--lose-color);
-}
-
-@media(max-width: 700px) {
-  .choice {
-    font-size: 110px;
-  }
-}
-
-@media(max-width: 500px) {
-  .choice {
-    font-size: 80px;
-  }
-}
-
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 100%;
-  overflow: auto;
-  background: rgba(0, 0, 0, 0.5);
-  color: black;
-}
-
-.modal-content {
-  background: ivory;
+#game-rules {
+  display: grid;
+  grid-template-columns: 1fr;
   text-align: center;
-  margin: 10% auto;
-  width: 350px;
-  border-radius: 10px;
-  padding: 3rem;
-  box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2), 0 7px 20px 0 rgba(0, 0, 0, 0.17);
-  animation-name: modalopen;
-  animation-duration: var(--modal-duration);
+  align-items: center;
+  justify-items: center;
+  border: 1px solid black;
+  padding: 5px;
+  color: rgb(114, 27, 27);
+  line-height: 3vh;
+  font-family: "Bangers", cursive;
+  letter-spacing: 3px;
 }
-
-.modal-content h1 {
-  margin-bottom: 1rem;
-}
-
-.modal-content p {
-  font-size: 1.2rem;
-  margin-top: 1rem;
-}
-
-@keyframes modalopen {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+ul {
+  text-align: left;
 }
 </style>
